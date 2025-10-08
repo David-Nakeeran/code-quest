@@ -35,7 +35,25 @@ model cq_user_progress {
 }
 
 model cq_users {
-  id               String             @id
-  created_at       DateTime?          @default(now()) @db.Timestamptz(6)
-  cq_user_progress cq_user_progress[]
+  id                 String               @id
+  created_at         DateTime?            @default(now()) @db.Timestamptz(6)
+  cq_user_progress   cq_user_progress[]
+  cq_user_quiz_stats cq_user_quiz_stats[]
+}
+
+model cq_topics {
+  id     BigInt  @id @default(autoincrement())
+  name   String
+  level  String
+  active Boolean @default(true)
+}
+
+model cq_user_quiz_stats {
+  id        BigInt   @id @default(autoincrement())
+  user_id   String
+  level     String
+  topic     String
+  correct   Int      @default(0)
+  attempted Int      @default(0)
+  cq_users  cq_users @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
