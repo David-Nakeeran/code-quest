@@ -1,3 +1,6 @@
+import TopicButton from "@/components/TopicButton";
+import { TopicProps } from "@/types/types";
+
 export default async function QuizPage() {
   // button generate quiz, fetch internal api post req
 
@@ -15,7 +18,9 @@ export default async function QuizPage() {
 
   const { data } = await res.json();
 
-  console.log(data);
+  const topicElements = data.map((element: TopicProps) => {
+    return <TopicButton key={element.id} name={element.name} />;
+  });
 
   // const res = await fetch("http://localhost:3000/api/quizzes", {
   //   method: "POST",
@@ -35,6 +40,7 @@ export default async function QuizPage() {
 
   return (
     <>
+      <div>{topicElements}</div>
       {/* <h1>{quiz.question}</h1>
       {optionElements}
       <p>{quiz.correct_answer}</p>
