@@ -1,11 +1,16 @@
 "use client";
 
-export default function TopicButton({ name }: { name: string }) {
-  function handleClick() {
-    console.log("Clicked");
-  }
+type TopicButtonProps = {
+  name: string;
+  handleTopicChange: (arg: string) => void;
+};
+
+export default function TopicButton({
+  name,
+  handleTopicChange,
+}: TopicButtonProps) {
   return (
-    <button className="capitalize" onClick={() => handleClick()}>
+    <button className="capitalize" onClick={() => handleTopicChange(name)}>
       {name}
     </button>
   );
