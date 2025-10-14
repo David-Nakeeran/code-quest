@@ -1,10 +1,14 @@
 import QuizManager from "@/components/QuizManager";
-import TopicButton from "@/components/TopicButton";
-import { TopicProps } from "@/types/types";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 export default async function QuizPage() {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return redirect("/sign-in");
+  }
   const res = await fetch("http://localhost:3000/api/topics");
-  console.log(res);
 
   if (!res.ok) {
     const { message } = await res.json();
@@ -19,7 +23,7 @@ export default async function QuizPage() {
 
   return (
     <>
-      <QuizManager topics={data} />
+      <QuizManager topics={data} userId={userId} />
     </>
   );
 }
