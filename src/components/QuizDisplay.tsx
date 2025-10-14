@@ -9,12 +9,16 @@ type QuizDisplayProp = {
   quiz: QuizProps;
   handleClick: (arg: string) => void;
   isAnswered: boolean;
+  userSelectedAnswer: string;
+  isCorrect: boolean;
 };
 
 export default function QuizDisplay({
   quiz,
   handleClick,
   isAnswered,
+  userSelectedAnswer,
+  isCorrect,
 }: QuizDisplayProp) {
   const optionElements = quiz.options.map((element: string, index: number) => {
     return (

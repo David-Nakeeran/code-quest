@@ -14,13 +14,15 @@ type QuizProps = {
 
 type QuizManagerProps = {
   topics: TopicProps[];
+  userId: string;
 };
 
-export default function QuizManager({ topics }: QuizManagerProps) {
+export default function QuizManager({ topics, userId }: QuizManagerProps) {
   const [currentTopic, setCurrentTopic] = useState("");
   const [quiz, setQuiz] = useState<QuizProps | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [userSelectedAnswer, setUserSelectedAnswer] = useState("");
+  const [isCorrect, setIsCorrect] = useState(false);
 
   useEffect(() => {
     async function fetchTopicQuiz() {
@@ -55,18 +57,44 @@ export default function QuizManager({ topics }: QuizManagerProps) {
   }
 
   function endQuiz(userSelectedAnswer: string) {
-    if (!quiz) return;
+    if (!quiz) return false;
     if (quiz.correct_answer === userSelectedAnswer) {
-      console.log("correct");
+      return true;
     } else {
-      console.log("wrong");
+      return false;
     }
   }
 
   function handleClick(userSelectedAnswer: string) {
     setIsAnswered(true);
     setUserSelectedAnswer(userSelectedAnswer);
-    endQuiz(userSelectedAnswer);
+    const correct = endQuiz(userSelectedAnswer);
+    setIsCorrect(correct);
+    submitStats(correct);
+  }
+
+  async function submitStats(correct: boolean) {
+    try {
+      const res = await fetch("http://localhost:3000/api/stats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: userId,
+          level: "beginner",
+          topic: currentTopic,
+          correct: correct ? 1 : 0,
+        }),
+      });
+
+      if (!res.ok) {
+        const { message } = await res.json();
+        const displayMessage =
+          res.status === 500 ? message : "Unexpected error.";
+        throw new Error(displayMessage);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -77,6 +105,8 @@ export default function QuizManager({ topics }: QuizManagerProps) {
           quiz={quiz}
           handleClick={handleClick}
           isAnswered={isAnswered}
+          userSelectedAnswer={userSelectedAnswer}
+          isCorrect={isCorrect}
         />
       )}
     </>
