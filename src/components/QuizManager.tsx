@@ -65,12 +65,13 @@ export default function QuizManager({ topics, userId }: QuizManagerProps) {
     }
   }
 
-  function handleClick(userSelectedAnswer: string) {
+  async function handleClick(userSelectedAnswer: string) {
     setIsAnswered(true);
     setUserSelectedAnswer(userSelectedAnswer);
     const correct = endQuiz(userSelectedAnswer);
     setIsCorrect(correct);
-    submitStats(correct);
+    await submitStats(correct);
+    if (correct) await updateXP();
   }
 
   async function submitStats(correct: boolean) {
@@ -83,6 +84,27 @@ export default function QuizManager({ topics, userId }: QuizManagerProps) {
           level: "beginner",
           topic: currentTopic,
           correct: correct ? 1 : 0,
+        }),
+      });
+
+      if (!res.ok) {
+        const { message } = await res.json();
+        const displayMessage =
+          res.status === 500 ? message : "Unexpected error.";
+        throw new Error(displayMessage);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function updateXP() {
+    try {
+      const res = await fetch("http://localhost:3000/api/progress", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: userId,
         }),
       });
 
