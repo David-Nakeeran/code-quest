@@ -32,6 +32,12 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    await prisma.cq_user_progress.create({
+      data: {
+        user_id: id,
+      },
+    });
+
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (error) {
     console.error(error);
