@@ -45,7 +45,16 @@ export async function PATCH(req: NextRequest) {
   });
 
   return NextResponse.json(
-    { success: true, data: userUpdatedProgress },
+    {
+      success: true,
+      data: {
+        ...userUpdatedProgress,
+        id: userUpdatedProgress.id.toString(), // convert BigInt
+        user_id: userUpdatedProgress.user_id,
+        xp: userUpdatedProgress.xp,
+        level: userUpdatedProgress.level,
+      },
+    },
     { status: 200 }
   );
 }
