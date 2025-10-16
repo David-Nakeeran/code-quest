@@ -55,11 +55,15 @@ export async function POST(req: NextRequest) {
   // const quizQuestion = response.output_text;
 
   const mockQuiz = `{
-  "question": "What is the correct way to create an object in JavaScript?",
-  "options": ["const obj = {};", "const obj = [];", "const obj = Object[];"],
-  "correct_answer": "const obj = {};",
-  "doc_link": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object"
-}`;
+    "question": "What is the correct way to create an object in JavaScript?",
+    "options": ["const obj = {};", "const obj = [];", "const obj = Object[];"],
+    "correct_answer": "const obj = {};",
+    "doc_link": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object"
+  }`;
 
   return NextResponse.json({ success: true, data: mockQuiz }, { status: 200 });
+  // return NextResponse.json(
+  //   { success: true, data: quizQuestion },
+  //   { status: 200 }
+  // );
 }
