@@ -1,6 +1,6 @@
 type QuizProps = {
   question: string;
-  options: [];
+  options: string[];
   correct_answer: string;
   doc_link: string;
 };
@@ -20,7 +20,7 @@ export default function QuizDisplay({
   userSelectedAnswer,
   isCorrect,
 }: QuizDisplayProp) {
-  const optionElements = quiz.options.map((element: string, index: number) => {
+  const optionElements = quiz.options.map((element, index) => {
     return (
       <div key={index}>
         <button onClick={() => handleClick(element)} disabled={isAnswered}>

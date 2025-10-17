@@ -1,63 +1,29 @@
 "use client";
 
-import { TopicProps } from "@/types/types";
-import TopicButton from "./TopicButton";
+import { submitStats } from "@/lib/actions/stats";
 import QuizDisplay from "./QuizDisplay";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { updateXP } from "@/lib/actions/progress";
 
 type QuizProps = {
   question: string;
-  options: [];
+  options: string[];
   correct_answer: string;
   doc_link: string;
 };
 
 type QuizManagerProps = {
-  topics: TopicProps[];
+  quiz: QuizProps;
   userId: string;
+  topic: string;
 };
 
-export default function QuizManager({ topics, userId }: QuizManagerProps) {
-  const [currentTopic, setCurrentTopic] = useState("");
-  const [quiz, setQuiz] = useState<QuizProps | null>(null);
+export default function QuizManager({ quiz, userId, topic }: QuizManagerProps) {
   const [isAnswered, setIsAnswered] = useState(false);
   const [userSelectedAnswer, setUserSelectedAnswer] = useState("");
   const [isCorrect, setIsCorrect] = useState(false);
 
-  useEffect(() => {
-    async function fetchTopicQuiz() {
-      const res = await fetch("http://localhost:3000/api/quizzes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic: currentTopic }),
-      });
-      const { data } = await res.json();
-      const quiz = JSON.parse(data);
-      setQuiz(quiz);
-    }
-    if (!currentTopic) return;
-    fetchTopicQuiz();
-  }, [currentTopic]);
-
-  const topicElements = topics.map((element: TopicProps) => {
-    return (
-      <TopicButton
-        key={element.id}
-        name={element.name}
-        handleTopicChange={handleTopicChange}
-      />
-    );
-  });
-
-  function handleTopicChange(topic: string) {
-    setQuiz(null);
-    setIsAnswered(false);
-    setUserSelectedAnswer("");
-    setCurrentTopic(topic);
-  }
-
   function endQuiz(userSelectedAnswer: string) {
-    if (!quiz) return false;
     if (quiz.correct_answer === userSelectedAnswer) {
       return true;
     } else {
@@ -70,58 +36,12 @@ export default function QuizManager({ topics, userId }: QuizManagerProps) {
     setUserSelectedAnswer(userSelectedAnswer);
     const correct = endQuiz(userSelectedAnswer);
     setIsCorrect(correct);
-    await submitStats(correct);
-    if (correct) await updateXP();
-  }
-
-  async function submitStats(correct: boolean) {
-    try {
-      const res = await fetch("http://localhost:3000/api/stats", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: userId,
-          level: "beginner",
-          topic: currentTopic,
-          correct: correct ? 1 : 0,
-        }),
-      });
-
-      if (!res.ok) {
-        const { message } = await res.json();
-        const displayMessage =
-          res.status === 500 ? message : "Unexpected error.";
-        throw new Error(displayMessage);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function updateXP() {
-    try {
-      const res = await fetch("http://localhost:3000/api/progress", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: userId,
-        }),
-      });
-
-      if (!res.ok) {
-        const { message } = await res.json();
-        const displayMessage =
-          res.status === 500 ? message : "Unexpected error.";
-        throw new Error(displayMessage);
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    await submitStats(userId, "beginner", topic, correct);
+    if (correct) await updateXP(userId);
   }
 
   return (
     <>
-      {topicElements}
       {quiz && (
         <QuizDisplay
           quiz={quiz}
